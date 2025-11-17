@@ -15,7 +15,7 @@
     <div id="app" class="container">
         <header>
             <div class="logo">
-                <h1>🐉️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️︎︎️️️️︎︎︎️️️️️︎︎︎️︎︎︎️️️︎️︎︎️️️️︎️︎︎︎️︎︎︎️︎︎️️︎️︎️︎︎️️️️︎️︎︎︎️︎︎︎️︎︎︎️︎️︎︎️️️︎️︎︎️︎︎︎️︎️︎️︎︎️️️︎︎️︎︎︎︎︎️︎️︎︎︎︎️︎︎️︎︎️️︎︎︎️︎︎︎️︎️︎️︎︎︎️︎︎︎︎️︎️️️︎︎︎️︎️️️︎︎︎️︎️️️︎︎️︎︎️️︎︎︎️︎︎️️️️︎️︎️︎️️︎︎️︎︎︎️︎️︎︎️️️︎️︎︎️︎️︎︎︎︎︎️︎︎️️︎︎︎️︎︎️︎︎️︎️︎︎️️️︎︎️︎️️︎︎️︎️️️️️︎︎︎︎️️️️️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎​ P4RS3LT0NGV3</h1>
+                <h1>🐉️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️︎︎️️️️︎︎︎️️️️️︎︎︎️︎︎︎️️️︎️︎︎️️️️︎️︎︎︎️︎︎︎️︎︎️️︎️︎️︎︎️️️️︎️︎︎︎️︎︎︎️︎︎︎️︎️︎︎️️️︎️︎︎️︎︎︎️︎️︎️︎︎️️️︎︎️︎︎︎︎︎️︎️︎︎︎︎️︎︎️︎︎️️︎︎︎️︎︎︎️︎️︎️︎︎︎️︎︎︎︎️︎️️️︎︎︎️︎️️️︎︎︎️︎️️️︎︎️︎︎️️︎︎︎️︎︎️️️️︎️︎️︎️️︎︎️︎︎︎️︎️︎︎️️️︎︎️︎️︎️︎︎︎︎︎︎️︎︎️️︎︎︎️︎︎️︎︎️︎️︎︎️️️︎︎️︎️️︎︎️︎️️️️️︎︎︎︎️️️️️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎︎︎️︎️️︎️️︎︎︎︎︎︎︎️︎︎︎️︎​ P4RS3LT0NGV3</h1>
             </div>
             <div class="actions">
                 <button
@@ -91,6 +91,13 @@
                     title="Tokenizer visualization"
                 >
                     <i class="fas fa-layer-group"></i> Tokenizer
+                </button>
+                <button
+                    :class="{ active: activeTab === 'gibberish' }"
+                    @click="switchToTab('gibberish')"
+                    title="Gibberish Generator"
+                >
+                    <i class="fas fa-comments"></i> Gibberish
                 </button>
             </div>
 
@@ -190,6 +197,168 @@
                                     <button class="use-as-input-button" v-if="universalDecodeResult.text" @click="transformInput = universalDecodeResult.text" title="Use this as input for transforms">
                                         <i class="fas fa-arrow-up"></i> Use as Input
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gibberish Tab -->
+            <div v-if="activeTab === 'gibberish'" class="tab-content">
+                <div class="transform-layout">
+                    <!-- Sub-tabs for Gibberish modes -->
+                    <div class="tab-buttons" style="margin-bottom: 20px;">
+                        <button 
+                            :class="{ active: gibberishMode === 'random' }" 
+                            @click="gibberishMode = 'random'"
+                            title="Random gibberish translation"
+                        >
+                            <i class="fas fa-book"></i> Gibberish Dictionary
+                        </button>
+                        <button 
+                            :class="{ active: gibberishMode === 'removal' }" 
+                            @click="gibberishMode = 'removal'"
+                            title="Specific gibberish mapping"
+                        >
+                            <i class="fas fa-list"></i> Gibberish by Removal
+                        </button>
+                    </div>
+
+                    <!-- Random Mode -->
+                    <div v-if="gibberishMode === 'random'" class="transform-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-book"></i> Gibberish Dictionary<small>Translate text into random gibberish and corresponding dictionary.</small></h3>
+                        </div>
+                        <div class="options-grid">
+                            <label>
+                                Plaintext:
+                                <textarea v-model="gibberishInput" placeholder="Enter plaintext to gibberize..." rows="3"></textarea>
+                            </label>
+                            <label>
+                                Characters to use:
+                                <textarea v-model="gibberishChars" rows="3"></textarea>
+                            </label>
+                            <label>
+                                Seed (optional)
+                                <input type="text" v-model="gibberishSeed" placeholder="e.g., 1337" />
+                            </label>
+                        </div>
+                        <div class="token-bomb-actions mutation-actions">
+                            <button class="transform-button" @click="sentenceToGibberish"><i class="fas fa-hammer"></i> Generate Gibberish</button>
+                        </div>
+                        <div class="output-container" v-if="gibberishOutput.length">
+                            <div class="token-tiles fuzzer-list" style="display:flex; flex-direction:column; gap:8px;">
+                                Gibberized Output:
+                                <div v-if="gibberishOutput" class="token-chip" style="display:flex; align-items:center; gap:8px;">
+                                    <textarea :value="gibberishOutput" readonly style="flex:1; min-height:46px;"></textarea>
+                                    <button class="copy-button" @click="copyToClipboard(gibberishOutput)" title="Copy"><i class="fas fa-copy"></i></button>
+                                </div>
+                                Gibberish Dictionary:
+                                <div v-if="gibberishDictionary" class="token-chip" style="display:flex; align-items:center; gap:8px;">
+                                    <textarea :value="gibberishDictionary" readonly style="flex:1; min-height:46px;"></textarea>
+                                    <button class="copy-button" @click="copyToClipboard(gibberishDictionary)" title="Copy"><i class="fas fa-copy"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Removal Mode -->
+                    <div v-if="gibberishMode === 'removal'" class="transform-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-list"></i> Gibberish by Removal <small>Gibberish via character removal</small></h3>
+                        </div>
+                        
+                        <!-- Sub-mode selector -->
+                        <div class="tab-buttons" style="margin-bottom: 20px; font-size: 0.9em;">
+                            <button 
+                                :class="{ active: removalSubMode === 'random' }" 
+                                @click="removalSubMode = 'random'"
+                                title="Remove random number of letters from each word"
+                            >
+                                <i class="fas fa-random"></i> Random Removal
+                            </button>
+                            <button 
+                                :class="{ active: removalSubMode === 'specific' }" 
+                                @click="removalSubMode = 'specific'"
+                                title="Remove specific characters from input"
+                            >
+                                <i class="fas fa-filter"></i> Specific Character Removal
+                            </button>
+                        </div>
+
+                        <!-- Random Removal Mode -->
+                        <div v-if="removalSubMode === 'random'">
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                <label>
+                                    Input text:
+                                    <textarea v-model="removalInput" placeholder="Enter text to remove characters from..." rows="3"></textarea>
+                                </label>
+                                <label>
+                                    Number of variations:
+                                    <input type="number" v-model.number="removalVariations" min="1" max="50" placeholder="e.g., 10" />
+                                </label>
+                                <label>
+                                    Min letters to remove per word:
+                                    <input type="number" v-model.number="removalMinLetters" min="0" max="10" placeholder="e.g., 1" />
+                                </label>
+                                <label>
+                                    Max letters to remove per word:
+                                    <input type="number" v-model.number="removalMaxLetters" min="0" max="10" placeholder="e.g., 3" />
+                                </label>
+                                <label>
+                                    Seed (optional):
+                                    <input type="text" v-model="removalSeed" placeholder="e.g., 42" />
+                                </label>
+                                <label></label>
+                            </div>
+                            <div class="token-bomb-actions mutation-actions">
+                                <button class="transform-button" @click="generateRandomRemovals">
+                                    <i class="fas fa-hammer"></i> Generate Variations
+                                </button>
+                                <button class="action-button copy" v-if="removalOutputs.length" @click="copyAllRemovals">
+                                    <i class="fas fa-copy"></i> Copy All
+                                </button>
+                            </div>
+                            <div class="output-container" v-if="removalOutputs.length">
+                                <div class="token-tiles fuzzer-list" style="display:flex; flex-direction:column; gap:8px;">
+                                    <div v-for="(out, i) in removalOutputs" :key="'removal-'+i" class="token-chip" style="display:flex; align-items:center; gap:8px;">
+                                        <span style="opacity:.7; min-width:32px;">#{{ i+1 }}</span>
+                                        <textarea :value="out" readonly style="flex:1; min-height:46px;"></textarea>
+                                        <button class="copy-button" @click="copyToClipboard(out)" title="Copy">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Specific Character Removal Mode -->
+                        <div v-if="removalSubMode === 'specific'">
+                            <div class="options-grid">
+                                <label>
+                                    Input text:
+                                    <textarea v-model="removalSpecificInput" placeholder="Enter text to remove characters from..." rows="3"></textarea>
+                                </label>
+                                <label>
+                                    Characters to remove:
+                                    <input type="text" v-model="removalCharsToRemove" placeholder="e.g., aeiou" />
+                                    <small>Enter characters you want to remove from the input</small>
+                                </label>
+                            </div>
+                            <div class="token-bomb-actions mutation-actions">
+                                <button class="transform-button" @click="generateSpecificRemoval">
+                                    <i class="fas fa-hammer"></i> Remove Characters
+                                </button>
+                            </div>
+                            <div class="output-container" v-if="removalSpecificOutput">
+                                <div class="token-tiles fuzzer-list" style="display:flex; flex-direction:column; gap:8px;">
+                                    <div class="token-chip" style="display:flex; align-items:center; gap:8px;">
+                                        <textarea :value="removalSpecificOutput" readonly style="flex:1; min-height:46px;"></textarea>
+                                        <button class="copy-button" @click="copyToClipboard(removalSpecificOutput)" title="Copy">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

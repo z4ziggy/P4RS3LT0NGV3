@@ -95,6 +95,27 @@ window.app = new Vue({
         fuzzEncodeShuffle: false,
         fuzzerOutputs: [],
 
+        // Gibberish Dictionary
+        gibberishInput: '',
+        gibberishOutput: '',
+        gibberishSeed: '',
+        gibberishDictionary: '',
+        gibberishChars: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        gibberishMode: 'random',
+
+        // Removal mode properties
+        removalSubMode: 'random',
+        removalInput: '',
+        removalVariations: 10,
+        removalMinLetters: 1,
+        removalMaxLetters: 3,
+        removalSeed: '',
+        removalOutputs: [],
+        
+        removalSpecificInput: '',
+        removalCharsToRemove: '',
+        removalSpecificOutput: '',
+
         // History of copied content
         copyHistory: [],
         maxHistoryItems: 10,
@@ -2140,6 +2161,156 @@ window.app = new Vue({
             }
             this.textPayload = out;
             this.showNotification('<i class="fas fa-bomb"></i> Text payload generated', 'success');
+        },
+
+        // Gibberish Logic
+        seededRandom(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        },
+
+        sentenceToGibberish() {
+        function generateGibberish(word, seed) {
+            const length = Math.max(4, word.length);
+            let gibberish = "";
+            const chars = this.gibberishChars;
+
+            for (let i = 0; i < length; i++) {
+            const randomValue = this.seededRandom(seed + i * 0.1);
+            gibberish += chars[Math.floor(randomValue * chars.length)];
+            }
+            return gibberish;
+        }
+        const src = String(this.gibberishInput || '');
+        if (!src) { this.gibberishOutput = ''; return; }
+
+        const words = this.gibberishInput.match(/\b\w+\b/g) || [];
+        const dictionary = {};
+        let gibberishSentence = "";
+        let wordIndex = 0;
+
+        words.forEach((word) => {
+            const lowerWord = word.toLowerCase();
+            const seed =
+            this.gibberishSeed === ""
+                ? Math.random() * 100
+                : Number(this.gibberishSeed);
+
+            if (!dictionary[lowerWord]) {
+            const wordSeed = seed + wordIndex * 100;
+            dictionary[lowerWord] = generateGibberish.call(this, word, wordSeed);
+            wordIndex++;
+            }
+        });
+
+        let charIndex = 0;
+        for (let i = 0; i < this.gibberishInput.length; i++) {
+            const char = this.gibberishInput[i];
+
+            if (/\w/.test(char)) {
+            let j = i;
+            while (
+                j < this.gibberishInput.length &&
+                /\w/.test(this.gibberishInput[j])
+            ) {
+                j++;
+            }
+
+            const word = this.gibberishInput.substring(i, j).toLowerCase();
+            gibberishSentence += dictionary[word];
+            i = j - 1;
+            } else {
+            gibberishSentence += char;
+            }
+        }
+
+        const dictionaryString = Object.entries(dictionary)
+            .map(([plain, gib]) => `"${plain}": "${gib}"`)
+            .join(", ");
+
+        this.gibberishOutput = gibberishSentence;
+        this.gibberishDictionary = '{' + dictionaryString + '}';
+        },
+
+        
+        generateRandomRemovals() {
+            if (!this.removalInput.trim()) {
+                this.showNotification('Please enter text to process', 'error');
+                return;
+            }
+            
+            const seed = this.removalSeed ? String(this.removalSeed) : String(Date.now());
+            let rng = this.seededRandomFactory(seed);
+            
+            this.removalOutputs = [];
+            const words = this.removalInput.split(/\s+/);
+            
+            for (let v = 0; v < this.removalVariations; v++) {
+                const modifiedWords = words.map(word => {
+                    // Skip very short words or non-alphabetic
+                    if (word.length <= 1 || !/[a-zA-Z]/.test(word)) {
+                        return word;
+                    }
+                    
+                    // Determine how many letters to remove for this word
+                    const minRemove = Math.max(0, this.removalMinLetters);
+                    const maxRemove = Math.min(word.length - 1, this.removalMaxLetters);
+                    const numToRemove = minRemove + Math.floor(rng() * (maxRemove - minRemove + 1));
+                    
+                    if (numToRemove === 0) {
+                        return word;
+                    }
+                    
+                    // Get letter positions
+                    const letters = word.split('').map((c, i) => ({ char: c, index: i }))
+                        .filter(item => /[a-zA-Z]/.test(item.char));
+                    
+                    // Randomly select positions to remove
+                    const toRemoveIndices = new Set();
+                    const maxAttempts = numToRemove * 3;
+                    let attempts = 0;
+                    
+                    while (toRemoveIndices.size < Math.min(numToRemove, letters.length) && attempts < maxAttempts) {
+                        const randIdx = Math.floor(rng() * letters.length);
+                        toRemoveIndices.add(letters[randIdx].index);
+                        attempts++;
+                    }
+                    
+                    // Build result by skipping removed indices
+                    return word.split('').filter((_, i) => !toRemoveIndices.has(i)).join('');
+                });
+                
+                this.removalOutputs.push(modifiedWords.join(' '));
+            }
+            
+            this.showNotification(`Generated ${this.removalOutputs.length} variations`, 'success');
+        },
+        
+        
+        generateSpecificRemoval() {
+            if (!this.removalSpecificInput.trim()) {
+                this.showNotification('Please enter text to process', 'error');
+                return;
+            }
+            
+            if (!this.removalCharsToRemove) {
+                this.showNotification('Please specify characters to remove', 'error');
+                return;
+            }
+            
+            const charsToRemove = new Set(this.removalCharsToRemove.split(''));
+            this.removalSpecificOutput = this.removalSpecificInput
+                .split('')
+                .filter(char => !charsToRemove.has(char))
+                .join('');
+            
+            this.showNotification('Characters removed', 'success');
+        },
+        
+        // Copy all removal outputs
+        copyAllRemovals() {
+            const allText = this.removalOutputs.join('\n');
+            this.copyToClipboard(allText);
         },
         
         // Set up paste event handlers for all textareas
